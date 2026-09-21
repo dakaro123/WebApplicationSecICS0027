@@ -1,6 +1,18 @@
 # Web-Based Secure Password Manager
 
-Semester project for ICS0027 Web Application Security.
+Semester project for ICS0027 Web Application Security and ICS0022 Secure Programming.
+
+## Course use
+
+This repository contains the password manager project I use for both
+ICS0027 Web Application Security and ICS0022 Secure Programming.
+
+The implementation is shared, but each course focuses on different security aspects.
+
+- Web Application Security: web attacks, sessions, cookies, access control, XSS, CSRF and SQL injection.
+- Secure Programming: cryptography, key handling, memory handling, input validation and secure implementation.
+
+Course-specific checkpoint documents are stored separately in the `docs/websec` and `docs/secure-programming` directories.
 
 ## Scope
 
@@ -42,8 +54,6 @@ I kept the stack quite simple on purpose. For this project I want to understand 
 - POST /vault
 - POST /vault/<id>/edit
 - POST /vault/<id>/delete
-
-## Local Setup
 
 ## Local Setup
 

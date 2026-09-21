@@ -8,6 +8,8 @@ A web-based password manager that allows users to securely store and manage cred
 
 ## Planned Technology Stack
 
+I kept the stack quite simple on purpose. For this project I want to understand how the security parts actually work instead of adding more technologies just to make the project look more complex.
+
 - Python 3
 - Flask
 - Jinja2
@@ -43,4 +45,8 @@ A web-based password manager that allows users to securely store and manage cred
 
 ## Local Setup
 
-Implementation will be added during the next project checkpoint.
+## Local Setup
+
+There is no runnable application yet. For Checkpoint 1, the repository contains only the planned architecture and security design.
+
+The application is planned to use Python 3 with Flask, Jinja2 and SQLite. Setup and run commands will be added during Checkpoint 2 together with the first working version.

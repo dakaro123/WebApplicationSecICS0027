@@ -3,6 +3,39 @@
 {% block title %}Register{% endblock %}
 
 {% block content %}
+
 <h1>Register</h1>
-<p>Registration will be implemented later.</p>
+
+{% if error %}
+<p>{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+
+    <label for="username">Username</label>
+    <input
+        type="text"
+        id="username"
+        name="username"
+        minlength="3"
+        required
+    >
+
+    <br><br>
+
+    <label for="password">Master password</label>
+    <input
+        type="password"
+        id="password"
+        name="password"
+        minlength="12"
+        required
+    >
+
+    <br><br>
+
+    <button type="submit">Register</button>
+
+</form>
+
 {% endblock %}

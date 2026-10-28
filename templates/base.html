@@ -5,15 +5,29 @@
     <title>{% block title %}Password Manager{% endblock %}</title>
 </head>
 <body>
+
     <nav>
-        <a href="/">Home</a>
-        <a href="/register">Register</a>
-        <a href="/login">Login</a>
-        <a href="/vault">Vault</a>
+        <a href="{{ url_for('index') }}">Home</a>
+
+        {% if g.user %}
+            <a href="{{ url_for('vault') }}">Vault</a>
+
+            <form
+                method="POST"
+                action="{{ url_for('logout') }}"
+                style="display: inline;"
+            >
+                <button type="submit">Logout</button>
+            </form>
+        {% else %}
+            <a href="{{ url_for('register') }}">Register</a>
+            <a href="{{ url_for('login') }}">Login</a>
+        {% endif %}
     </nav>
 
     <hr>
 
     {% block content %}{% endblock %}
+
 </body>
 </html>

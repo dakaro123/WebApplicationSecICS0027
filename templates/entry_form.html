@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}{{ form_title }}{% endblock %}
+
+{% block content %}
+
+<h1>{{ form_title }}</h1>
+
+{% if error %}
+<p>{{ error }}</p>
+{% endif %}
+
+<form method="POST">
+
+    <label for="service">Service</label>
+    <input
+        type="text"
+        id="service"
+        name="service"
+        value="{{ entry.get('service', '') }}"
+        required
+    >
+
+    <br><br>
+
+    <label for="username">Username</label>
+    <input
+        type="text"
+        id="username"
+        name="username"
+        value="{{ entry.get('username', '') }}"
+    >
+
+    <br><br>
+
+    <label for="password">Password</label>
+    <input
+        type="password"
+        id="password"
+        name="password"
+        value="{{ entry.get('password', '') }}"
+        required
+    >
+
+    <br><br>
+
+    <label for="notes">Notes</label>
+    <textarea
+        id="notes"
+        name="notes"
+    >{{ entry.get('notes', '') }}</textarea>
+
+    <br><br>
+
+    <button type="submit">
+        Save
+    </button>
+
+</form>
+
+<p>
+    <a href="{{ url_for('vault') }}">
+        Back to vault
+    </a>
+</p>
+
+{% endblock %}

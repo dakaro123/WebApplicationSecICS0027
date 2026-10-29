@@ -14,6 +14,8 @@ password_hasher = PasswordHasher()
 
 SESSION_LIFETIME = 30 * 60
 
+_session_keys = {}
+
 
 def create_user(username, password):
     password_hash = password_hasher.hash(password)
@@ -29,6 +31,7 @@ def create_user(username, password):
             """,
             (username, password_hash, vault_salt)
         )
+
         connection.commit()
         return True
 
@@ -44,7 +47,7 @@ def authenticate_user(username, password):
 
     user = connection.execute(
         """
-        SELECT id, username, password_hash
+        SELECT id, username, password_hash, vault_salt
         FROM users
         WHERE username = ?
         """,
@@ -57,7 +60,11 @@ def authenticate_user(username, password):
         return None
 
     try:
-        password_hasher.verify(user["password_hash"], password)
+        password_hasher.verify(
+            user["password_hash"],
+            password
+        )
+
         return user
 
     except VerifyMismatchError:
@@ -82,6 +89,14 @@ def create_session(user_id):
     connection.close()
 
     return token
+
+
+def store_session_key(token, key):
+    _session_keys[token] = key
+
+
+def get_session_key(token):
+    return _session_keys.get(token)
 
 
 def get_user_by_session(token):
@@ -121,6 +136,8 @@ def delete_session(token):
 
     connection.commit()
     connection.close()
+
+    _session_keys.pop(token, None)
 
 
 def login_required(view):

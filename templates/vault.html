@@ -6,8 +6,75 @@
 
 <h1>Vault</h1>
 
-<p>Logged in as {{ g.user["username"] }}.</p>
+<p>
+    Logged in as {{ g.user["username"] }}.
+</p>
 
-<p>sooooooon</p>
+<p>
+    <a href="{{ url_for('add_entry') }}">
+        Add new entry
+    </a>
+</p>
+
+{% if entries %}
+
+    {% for entry in entries %}
+
+        <hr>
+
+        <h3>{{ entry["service"] }}</h3>
+
+        <p>
+            Username:
+            {{ entry["username"] }}
+        </p>
+
+        <p>
+            Password:
+            <input
+                type="password"
+                value="{{ entry['password'] }}"
+                readonly
+            >
+        </p>
+
+        {% if entry["notes"] %}
+        <p>
+            Notes:
+            {{ entry["notes"] }}
+        </p>
+        {% endif %}
+
+        <a href="{{
+            url_for(
+                'edit_entry',
+                entry_id=entry['id']
+            )
+        }}">
+            Edit
+        </a>
+
+        <form
+            method="POST"
+            action="{{
+                url_for(
+                    'remove_entry',
+                    entry_id=entry['id']
+                )
+            }}"
+            style="display: inline;"
+        >
+            <button type="submit">
+                Delete
+            </button>
+        </form>
+
+    {% endfor %}
+
+{% else %}
+
+<p>Your vault is empty.</p>
+
+{% endif %}
 
 {% endblock %}

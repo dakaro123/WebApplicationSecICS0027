@@ -48,6 +48,107 @@ def init_db():
     connection.commit()
     connection.close()
 
+def add_vault_entry(user_id, service, encrypted_data, nonce):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        INSERT INTO vault_entries (
+            user_id,
+            service,
+            encrypted_data,
+            nonce
+        )
+        VALUES (?, ?, ?, ?)
+        """,
+        (user_id, service, encrypted_data, nonce)
+    )
+
+    connection.commit()
+    connection.close()
+
+
+def get_vault_entries(user_id):
+    connection = get_connection()
+
+    entries = connection.execute(
+        """
+        SELECT id, service, encrypted_data, nonce
+        FROM vault_entries
+        WHERE user_id = ?
+        ORDER BY id DESC
+        """,
+        (user_id,)
+    ).fetchall()
+
+    connection.close()
+
+    return entries
+
+
+def get_vault_entry(entry_id, user_id):
+    connection = get_connection()
+
+    entry = connection.execute(
+        """
+        SELECT id, service, encrypted_data, nonce
+        FROM vault_entries
+        WHERE id = ?
+          AND user_id = ?
+        """,
+        (entry_id, user_id)
+    ).fetchone()
+
+    connection.close()
+
+    return entry
+
+
+def update_vault_entry(
+    entry_id,
+    user_id,
+    service,
+    encrypted_data,
+    nonce
+):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        UPDATE vault_entries
+        SET service = ?,
+            encrypted_data = ?,
+            nonce = ?
+        WHERE id = ?
+          AND user_id = ?
+        """,
+        (
+            service,
+            encrypted_data,
+            nonce,
+            entry_id,
+            user_id
+        )
+    )
+
+    connection.commit()
+    connection.close()
+
+
+def delete_vault_entry(entry_id, user_id):
+    connection = get_connection()
+
+    connection.execute(
+        """
+        DELETE FROM vault_entries
+        WHERE id = ?
+          AND user_id = ?
+        """,
+        (entry_id, user_id)
+    )
+
+    connection.commit()
+    connection.close()
 
 if __name__ == "__main__":
     init_db()

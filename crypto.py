@@ -17,8 +17,9 @@ def derive_vault_key(master_password, salt):
     )
 
 
-def encrypt_entry(key, username, password, notes):
+def encrypt_entry(key, service, username, password, notes):
     data = {
+        "service": service,
         "username": username,
         "password": password,
         "notes": notes

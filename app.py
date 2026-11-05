@@ -35,7 +35,7 @@ from database import (
 
 
 app = Flask(__name__)
-
+USE_HTTPS = False
 
 @app.before_request
 def load_logged_in_user():
@@ -146,7 +146,7 @@ def login():
                 max_age=SESSION_LIFETIME,
                 httponly=True,
                 samesite="Strict",
-                secure=True,
+                secure=USE_HTTPS,
             )
 
             return response
@@ -196,9 +196,8 @@ def vault():
 
         entries.append({
             "id": entry["id"],
-            "service": entry["service"],
+            "service": decrypted["service"],
             "username": decrypted["username"],
-            "password": decrypted["password"],
             "notes": decrypted["notes"],
         })
 
@@ -250,6 +249,7 @@ def add_entry():
 
             encrypted_data, nonce = encrypt_entry(
                 key,
+                service,
                 username,
                 password,
                 notes
@@ -257,7 +257,6 @@ def add_entry():
 
             add_vault_entry(
                 g.user["id"],
-                service,
                 encrypted_data,
                 nonce
             )
@@ -270,7 +269,8 @@ def add_entry():
         "entry_form.html",
         form_title="Add entry",
         error=error,
-        entry={}
+        entry={},
+        is_edit=False
     )
 
 
@@ -299,9 +299,8 @@ def edit_entry(entry_id):
     )
 
     entry = {
-        "service": database_entry["service"],
+        "service": decrypted["service"],
         "username": decrypted["username"],
-        "password": decrypted["password"],
         "notes": decrypted["notes"],
     }
 
@@ -331,12 +330,13 @@ def edit_entry(entry_id):
         if not service:
             error = "Service name is required."
 
-        elif not password:
-            error = "Password is required."
-
         else:
+            if not password:
+                password = decrypted["password"]
+
             encrypted_data, nonce = encrypt_entry(
                 key,
+                service,
                 username,
                 password,
                 notes
@@ -345,7 +345,6 @@ def edit_entry(entry_id):
             update_vault_entry(
                 entry_id,
                 g.user["id"],
-                service,
                 encrypted_data,
                 nonce
             )
@@ -365,7 +364,8 @@ def edit_entry(entry_id):
         "entry_form.html",
         form_title="Edit entry",
         error=error,
-        entry=entry
+        entry=entry,
+        is_edit=True
     )
 
 
@@ -388,11 +388,12 @@ def remove_entry(entry_id):
 if __name__ == "__main__":
     init_db()
 
+    ssl_context = "adhoc" if USE_HTTPS else None
     app.run(
         host="127.0.0.1",
         port=5000,
         debug=True,
         use_reloader=False,
         threaded=True,
-        ssl_context="adhoc"
+        ssl_context=ssl_context
     )

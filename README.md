@@ -57,6 +57,31 @@ I kept the stack quite simple on purpose. For this project I want to understand 
 
 ## Local Setup
 
-There is no runnable application yet. For Checkpoint 1, the repository contains only the planned architecture and security design.
+The application currently uses Python 3, Flask, Jinja2 and SQLite.
 
-The application is planned to use Python 3 with Flask, Jinja2 and SQLite. Setup and run commands will be added during Checkpoint 2 together with the first working version.
+Create and activate a virtual environment:
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+Install the required dependencies:
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+Run the application:
+
+```powershell
+python app.py
+```
+
+The application is available at:
+
+`http://127.0.0.1:5000`
+
+The SQLite database is created automatically when the application starts.
+
+For the current Secure Programming development version, HTTPS is disabled locally. The Web Application Security version supports local HTTPS using a self-signed development certificate.

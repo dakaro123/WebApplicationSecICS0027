@@ -33,15 +33,24 @@
 
     <br><br>
 
-    <label for="password">Password</label>
+    <label for="password">
+        {% if is_edit %}
+            New password
+        {% else %}
+            Password
+        {% endif %}
+    </label>
+
     <input
         type="password"
         id="password"
         name="password"
-        value="{{ entry.get('password', '') }}"
-        required
+        {% if not is_edit %}required{% endif %}
     >
 
+    {% if is_edit %}
+    <p> Leave empty to keep current password.</p>
+    {% endif %}
     <br><br>
 
     <label for="notes">Notes</label>

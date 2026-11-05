@@ -28,7 +28,6 @@ def init_db():
         CREATE TABLE IF NOT EXISTS vault_entries (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER NOT NULL,
-            service TEXT NOT NULL,
             encrypted_data BLOB NOT NULL,
             nonce BLOB NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -48,20 +47,19 @@ def init_db():
     connection.commit()
     connection.close()
 
-def add_vault_entry(user_id, service, encrypted_data, nonce):
+def add_vault_entry(user_id, encrypted_data, nonce):
     connection = get_connection()
 
     connection.execute(
         """
         INSERT INTO vault_entries (
             user_id,
-            service,
             encrypted_data,
             nonce
         )
-        VALUES (?, ?, ?, ?)
+        VALUES (?, ?, ?)
         """,
-        (user_id, service, encrypted_data, nonce)
+        (user_id, encrypted_data, nonce)
     )
 
     connection.commit()
@@ -73,7 +71,7 @@ def get_vault_entries(user_id):
 
     entries = connection.execute(
         """
-        SELECT id, service, encrypted_data, nonce
+        SELECT id, encrypted_data, nonce
         FROM vault_entries
         WHERE user_id = ?
         ORDER BY id DESC
@@ -91,7 +89,7 @@ def get_vault_entry(entry_id, user_id):
 
     entry = connection.execute(
         """
-        SELECT id, service, encrypted_data, nonce
+        SELECT id, encrypted_data, nonce
         FROM vault_entries
         WHERE id = ?
           AND user_id = ?
@@ -107,7 +105,6 @@ def get_vault_entry(entry_id, user_id):
 def update_vault_entry(
     entry_id,
     user_id,
-    service,
     encrypted_data,
     nonce
 ):
@@ -116,14 +113,12 @@ def update_vault_entry(
     connection.execute(
         """
         UPDATE vault_entries
-        SET service = ?,
-            encrypted_data = ?,
+        SET encrypted_data = ?,
             nonce = ?
         WHERE id = ?
           AND user_id = ?
         """,
         (
-            service,
             encrypted_data,
             nonce,
             entry_id,

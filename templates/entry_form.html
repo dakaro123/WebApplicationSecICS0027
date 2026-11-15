@@ -12,6 +12,12 @@
 
 <form method="POST">
 
+    <input
+        type="hidden"
+        name="csrf_token"
+        value="{{ g.csrf_token }}"
+    >
+
     <label for="service">Service</label>
     <input
         type="text"

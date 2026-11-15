@@ -17,6 +17,11 @@
                 action="{{ url_for('logout') }}"
                 style="display: inline;"
             >
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{ g.csrf_token }}"
+                >
                 <button type="submit">Logout</button>
             </form>
         {% else %}

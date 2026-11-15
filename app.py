@@ -1,4 +1,5 @@
 import logging
+import secrets
 
 from flask import (
     Flask,
@@ -46,6 +47,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("password_manager")
 
+
 @app.before_request
 def load_logged_in_user():
     cleanup_expired_sessions()
@@ -63,6 +65,25 @@ def load_logged_in_user():
         g.user = None
 
 
+@app.before_request
+def protect_from_csrf():
+    csrf_token = request.cookies.get("csrf_token")
+
+    if csrf_token is None:
+        csrf_token = secrets.token_urlsafe(32)
+
+    g.csrf_token = csrf_token
+
+    if request.method == "POST":
+        form_token = request.form.get("csrf_token", "")
+
+        if not secrets.compare_digest(
+            csrf_token,
+            form_token
+        ):
+            abort(400)
+
+
 @app.after_request
 def log_request(response):
     logger.info(
@@ -72,6 +93,54 @@ def log_request(response):
         response.status_code
     )
     return response
+
+
+@app.after_request
+def add_security_headers(response):
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "object-src 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self'; "
+        "frame-ancestors 'none'"
+    )
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = (
+        "strict-origin-when-cross-origin"
+    )
+
+    if USE_HTTPS:
+        response.headers["Strict-Transport-Security"] = (
+            "max-age=31536000"
+        )
+
+    if hasattr(g, "csrf_token"):
+        response.set_cookie(
+            "csrf_token",
+            g.csrf_token,
+            max_age=SESSION_LIFETIME,
+            httponly=True,
+            samesite="Strict",
+            secure=USE_HTTPS,
+        )
+
+    return response
+
+
+@app.errorhandler(400)
+def bad_request(error):
+    logger.warning(
+        "event=http_error method=%s path=%s status=400",
+        request.method,
+        request.path
+    )
+    return render_template(
+        "error.html",
+        message="Invalid request."
+    ), 400
 
 
 @app.errorhandler(404)

@@ -99,6 +99,33 @@ def get_session_key(token):
     return _session_keys.get(token)
 
 
+def cleanup_expired_sessions():
+    current_time = int(time.time())
+    connection = get_connection()
+
+    expired_sessions = connection.execute(
+        """
+        SELECT token
+        FROM sessions
+        WHERE expires_at <= ?
+        """,
+        (current_time,)
+    ).fetchall()
+
+    connection.execute(
+        "DELETE FROM sessions WHERE expires_at <= ?",
+        (current_time,)
+    )
+
+    connection.commit()
+    connection.close()
+
+    for session in expired_sessions:
+        _session_keys.pop(session["token"], None)
+
+    return len(expired_sessions)
+
+
 def get_user_by_session(token):
     if token is None:
         return None

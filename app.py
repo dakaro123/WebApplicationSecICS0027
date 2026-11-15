@@ -13,6 +13,7 @@ from flask import (
 from auth import (
     SESSION_LIFETIME,
     authenticate_user,
+    cleanup_expired_sessions,
     create_session,
     create_user,
     delete_session,
@@ -47,6 +48,8 @@ logger = logging.getLogger("password_manager")
 
 @app.before_request
 def load_logged_in_user():
+    cleanup_expired_sessions()
+
     token = request.cookies.get("session_id")
 
     g.session_token = token

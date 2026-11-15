@@ -1,3 +1,5 @@
+import logging
+
 from flask import (
     Flask,
     abort,
@@ -37,6 +39,12 @@ from database import (
 app = Flask(__name__)
 USE_HTTPS = False
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(message)s"
+)
+logger = logging.getLogger("password_manager")
+
 @app.before_request
 def load_logged_in_user():
     token = request.cookies.get("session_id")
@@ -50,6 +58,43 @@ def load_logged_in_user():
     ):
         delete_session(token)
         g.user = None
+
+
+@app.after_request
+def log_request(response):
+    logger.info(
+        "event=request method=%s path=%s status=%s",
+        request.method,
+        request.path,
+        response.status_code
+    )
+    return response
+
+
+@app.errorhandler(404)
+def page_not_found(error):
+    logger.warning(
+        "event=http_error method=%s path=%s status=404",
+        request.method,
+        request.path
+    )
+    return render_template(
+        "error.html",
+        message="Page not found."
+    ), 404
+
+
+@app.errorhandler(500)
+def internal_server_error(error):
+    logger.error(
+        "event=http_error method=%s path=%s status=500",
+        request.method,
+        request.path
+    )
+    return render_template(
+        "error.html",
+        message="Internal server error."
+    ), 500
 
 
 @app.route("/")
@@ -392,7 +437,7 @@ if __name__ == "__main__":
     app.run(
         host="127.0.0.1",
         port=5000,
-        debug=True,
+        debug=False,
         use_reloader=False,
         threaded=True,
         ssl_context=ssl_context
